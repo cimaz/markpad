@@ -1,98 +1,98 @@
 # Markpad
 
-Ένας ελαφρύς, **local-first** Markdown editor φτιαγμένος με [Electron](https://www.electronjs.org/).
-Γράφεις Markdown χωρίς να ξέρεις το συντακτικό απ' έξω, βλέπεις live preview, και
-πλοηγείσαι στις σημειώσεις σου με έναν χάρτη συνδέσεων τύπου Obsidian.
+A lightweight, **local-first** Markdown editor built with [Electron](https://www.electronjs.org/).
+Write Markdown without memorising the syntax, see a live preview, and navigate your
+notes through an Obsidian-style link map.
 
-![Ο editor σε split view](docs/editor.png)
+![The editor in split view](docs/editor.png)
 
 ---
 
-## Τι κάνει
+## What it does
 
-Το Markpad ανοίγει έναν **φάκελο** με `.md` αρχεία και σου δίνει τρία εργαλεία πάνω του:
-έναν editor με κουμπιά για κάθε στοιχείο Markdown, μια ζωντανή προεπισκόπηση, και έναν
-γράφο που δείχνει πώς συνδέονται τα αρχεία μεταξύ τους.
+Markpad opens a **folder** of `.md` files and gives you three tools over it: an editor
+with a button for every Markdown element, a live preview, and a graph that shows how
+the files link to each other.
 
-Δεν υπάρχει cloud, λογαριασμός ή βάση δεδομένων — τα αρχεία σου μένουν απλά `.md` στον δίσκο.
+No cloud, no account, no database — your files stay plain `.md` on disk.
 
-## Δυνατότητες
+## Features
 
-### ✍️ Editor με toolbar
+### ✍️ Editor with a toolbar
 
-Κάθε στοιχείο Markdown έχει κουμπί, ώστε να μην χρειάζεται να θυμάσαι το συντακτικό:
+Every Markdown element has a button, so you never have to remember the syntax:
 
-| Ομάδα | Κουμπιά |
+| Group | Buttons |
 | --- | --- |
-| Επικεφαλίδες | `H1` `H2` `H3` |
-| Έμφαση | **Bold** · *Italic* · ~~Strikethrough~~ |
-| Μπλοκ | Blockquote · inline code · code block |
-| Λίστες | Bulleted · numbered · task list (`- [ ]`) |
-| Ένθετα | Link · image · πίνακας · οριζόντια γραμμή |
+| Headings | `H1` `H2` `H3` |
+| Emphasis | **Bold** · *Italic* · ~~Strikethrough~~ |
+| Blocks | Blockquote · inline code · code block |
+| Lists | Bulleted · numbered · task list (`- [ ]`) |
+| Inserts | Link · image · table · horizontal rule |
 
-Τα κουμπιά δουλεύουν πάνω στην **επιλεγμένη περιοχή** και λειτουργούν ως toggle — π.χ.
-επιλέγεις κείμενο που είναι ήδη bold και το κουμπί το ξε-bold-άρει. Το `Tab` βάζει
-δύο κενά αντί να φύγει η εστίαση.
+Buttons act on the **current selection** and work as a toggle — select text that is
+already bold and the button un-bolds it. `Tab` inserts two spaces instead of moving
+focus away.
 
-### 👁️ Τρεις προβολές
+### 👁️ Three views
 
-`Code` (μόνο ο κώδικας) · `Split` (κώδικας + preview δίπλα-δίπλα) · `Preview` (μόνο το
-φορμαρισμένο αποτέλεσμα). Εναλλαγή με τα κουμπιά ή `Cmd/Ctrl+1 / 2 / 3`.
+`Code` (source only) · `Split` (source + preview side by side) · `Preview` (rendered
+output only). Switch with the buttons or `Cmd/Ctrl+1 / 2 / 3`.
 
-Η προεπισκόπηση χρησιμοποιεί GitHub-flavored Markdown ([`marked`](https://marked.js.org/))
-και το HTML περνά από sanitization με [DOMPurify](https://github.com/cure53/DOMPurify)
-πριν εμφανιστεί. Ανανεώνεται καθώς πληκτρολογείς.
+The preview uses GitHub-flavored Markdown ([`marked`](https://marked.js.org/)) and the
+HTML is run through [DOMPurify](https://github.com/cure53/DOMPurify) before it is shown.
+It updates as you type.
 
 ### 📁 File browser
 
-Δενδρική προβολή του φακέλου στα αριστερά — φωλιασμένοι υποφάκελοι που ανοίγουν με κλικ,
-lazy loading, το ανοιχτό αρχείο τονισμένο. Τα Markdown αρχεία ξεχωρίζουν οπτικά από τα
-υπόλοιπα. Κρυφά αρχεία (`.dotfiles`) παραλείπονται.
+A tree view of the folder on the left — nested sub-folders that expand on click, lazy
+loading, the open file highlighted. Markdown files are visually distinct from the rest.
+Hidden files (`.dotfiles`) are skipped.
 
 ### 🕸️ Link map
 
-![Ο χάρτης συνδέσεων](docs/graph.png)
+![The link map](docs/graph.png)
 
-Το κουμπί **Graph** στο sidebar σαρώνει τον φάκελο και σχεδιάζει κάθε σημείωση ως κόμβο,
-με ακμές τις μεταξύ τους συνδέσεις. Αναγνωρίζει:
+The **Graph** button in the sidebar scans the folder and draws every note as a node,
+with edges for the links between them. It recognises:
 
-| Μορφή | Παραδείγματα |
+| Form | Examples |
 | --- | --- |
 | **Wikilinks** | `[[Note]]` · `[[Note\|alias]]` · `[[Note#heading]]` · `[[folder/Note]]` |
-| **Markdown links** | `[κείμενο](note.md)` · `[κείμενο](../folder/note.md)` · ονόματα με percent-encoding |
+| **Markdown links** | `[text](note.md)` · `[text](../folder/note.md)` · percent-encoded names |
 
-Αγνοεί σωστά external URLs, `mailto:`, εικόνες, σκέτα anchors (`#section`) και ό,τι
-βρίσκεται μέσα σε inline ή fenced code. Διπλά links προς τον ίδιο στόχο μετρούν μία φορά.
-Παραλείπονται φάκελοι όπως `node_modules`, `.git`, `dist`.
+It correctly ignores external URLs, `mailto:`, images, bare anchors (`#section`), and
+anything inside inline or fenced code. Duplicate links to the same target count once.
+Folders like `node_modules`, `.git` and `dist` are skipped.
 
-**Χειρισμός:** σύρσιμο για μετακίνηση (ή σύρε κόμβο για αναδιάταξη) · scroll για zoom ·
-κλικ για εστίαση στους γείτονες · **διπλό κλικ για άνοιγμα** του αρχείου. Στο toolbar:
-`Rescan` (νέα σάρωση), `Fit` (zoom to fit), `Locate` (κεντράρισμα στο ανοιχτό αρχείο).
+**Controls:** drag to pan (or drag a node to rearrange) · scroll to zoom · click to
+focus a node and its neighbours · **double-click to open** the file. In the toolbar:
+`Rescan`, `Fit` (zoom to fit), `Locate` (centre on the open file).
 
-Το μέγεθος κόμβου δείχνει πλήθος συνδέσεων · το ανοιχτό αρχείο έχει μπλε δακτύλιο ·
-τα orphans (χωρίς καμία σύνδεση) είναι μικρές μεμονωμένες κουκκίδες. Το sidebar δείχνει
-σύνολα σημειώσεων, συνδέσεων, orphans και σπασμένων links.
+Node size reflects the number of links · the open file has a blue ring · orphans (no
+links at all) appear as small isolated dots. The sidebar shows totals for notes, links,
+orphans and broken links.
 
-Ο γράφος είναι γραμμένος από το μηδέν σε `<canvas>` — force-directed layout με spatial
-grid, **χωρίς εξωτερική βιβλιοθήκη**. Το layout είναι ντετερμινιστικό, οπότε ο ίδιος
-φάκελος δίνει πάντα τον ίδιο χάρτη.
+The graph is written from scratch on a `<canvas>` — a force-directed layout with a
+spatial grid, **no external library**. The layout is deterministic, so the same folder
+always produces the same map.
 
 ### 🌗 Light / Dark theme
 
-Εναλλαγή με το κουμπί πάνω δεξιά ή `Cmd/Ctrl+T`. Η επιλογή αποθηκεύεται και ισχύει και
-για τον χάρτη.
+Toggle with the button in the top-right or `Cmd/Ctrl+T`. The choice is remembered and
+applies to the graph too.
 
-### Και μικρότερα
+### Smaller things
 
-- **Session restore** — ανοίγει ξανά τον τελευταίο φάκελο, αρχείο, theme και view.
-- **File associations** — διπλό κλικ σε `.md` από το Finder / file manager ανοίγει το Markpad
-  (μετά την εγκατάσταση ενός πακέτου).
-- **Status bar** — όνομα αρχείου, ένδειξη μη αποθηκευμένων αλλαγών, θέση cursor, μέτρημα λέξεων.
-- Προειδοποίηση πριν κλείσεις αρχείο με μη αποθηκευμένες αλλαγές.
+- **Session restore** — reopens the last folder, file, theme and view.
+- **File associations** — double-clicking a `.md` file in Finder / your file manager
+  opens Markpad (after installing a package).
+- **Status bar** — file name, unsaved-changes indicator, cursor position, word count.
+- A prompt before you close a file with unsaved changes.
 
-## Ξεκίνημα από τον κώδικα
+## Running from source
 
-Απαιτείται [Node.js](https://nodejs.org/) 18+.
+Requires [Node.js](https://nodejs.org/) 18+.
 
 ```bash
 git clone https://github.com/cimaz/markpad.git
@@ -101,67 +101,68 @@ npm install
 npm start
 ```
 
-Άνοιγμα συγκεκριμένου αρχείου: `npm start -- path/to/file.md`
+Open a specific file: `npm start -- path/to/file.md`
 
-## Πακετάρισμα
+## Packaging
 
 ```bash
 npm run dist          # macOS + Linux
 npm run dist:mac      # macOS  — .dmg + .zip (arm64 & x64)
 npm run dist:linux    # Linux  — .deb (amd64 & arm64)
-npm run pack          # unpacked build, χωρίς installer (γρήγορος έλεγχος)
+npm run pack          # unpacked build, no installer (quick check)
 ```
 
-Τα πακέτα βγαίνουν στον φάκελο `distro/`. Το εικονίδιο παράγεται αυτόματα από το
-[`build/icon.svg`](build/icon.svg) — γίνεται render με το ίδιο το Electron, οπότε δεν
-χρειάζεται ImageMagick ή sharp. Ρυθμίσεις: [`electron-builder.yml`](electron-builder.yml).
+Packages are written to `distro/`. The icon is generated automatically from
+[`build/icon.svg`](build/icon.svg) — rendered by Electron itself, so no ImageMagick or
+sharp is needed. Configuration: [`electron-builder.yml`](electron-builder.yml).
 
-### Εγκατάσταση του `.deb`
+### Installing the `.deb`
 
 ```bash
 sudo apt install ./distro/markpad_1.0.0_amd64.deb
 ```
 
-Εγκαθίσταται στο `/opt/Markpad` με desktop entry, εικονίδια hicolor και file association για `.md`.
+Installs to `/opt/Markpad` with a desktop entry, hicolor icons and a `.md` file association.
 
-### Σημείωση για macOS
+### Note for macOS
 
-Τα builds είναι **unsigned** (δεν υπάρχει Apple Developer certificate). Στο πρώτο άνοιγμα:
-δεξί κλικ στο app → **Open** → **Open**, ή `xattr -cr /Applications/Markpad.app`.
+The builds are **unsigned** (no Apple Developer certificate). On first launch: right-click
+the app → **Open** → **Open**, or run `xattr -cr /Applications/Markpad.app`.
 
-## Συντομεύσεις
+## Keyboard shortcuts
 
-| Πλήκτρα | Ενέργεια |
+| Keys | Action |
 | --- | --- |
-| `Cmd/Ctrl` + `N` | Νέο αρχείο |
-| `Cmd/Ctrl` + `O` | Άνοιγμα αρχείου |
-| `Cmd/Ctrl` + `Shift` + `O` | Άνοιγμα φακέλου |
-| `Cmd/Ctrl` + `S` | Αποθήκευση |
-| `Cmd/Ctrl` + `Shift` + `S` | Αποθήκευση ως… |
+| `Cmd/Ctrl` + `N` | New file |
+| `Cmd/Ctrl` + `O` | Open file |
+| `Cmd/Ctrl` + `Shift` + `O` | Open folder |
+| `Cmd/Ctrl` + `S` | Save |
+| `Cmd/Ctrl` + `Shift` + `S` | Save as… |
 | `Cmd/Ctrl` + `B` / `I` / `E` / `K` | Bold / Italic / Inline code / Link |
 | `Cmd/Ctrl` + `1` / `2` / `3` | Code / Split / Preview |
-| `Cmd/Ctrl` + `T` | Εναλλαγή light / dark |
-| `Cmd/Ctrl` + `\` | Εμφάνιση / απόκρυψη sidebar |
+| `Cmd/Ctrl` + `T` | Toggle light / dark |
+| `Cmd/Ctrl` + `\` | Show / hide sidebar |
 
-## Πώς είναι φτιαγμένο
+## How it's built
 
-| Αρχείο | Ρόλος |
+| File | Role |
 | --- | --- |
-| [`main.js`](main.js) | Electron main process — παράθυρο, native menu, IPC για filesystem, parsing των links (`graph:build`) |
-| [`preload.js`](preload.js) | Ασφαλές γεφύρωμα (`contextBridge`) + rendering Markdown με `marked` |
-| [`src/index.html`](src/index.html) | Δομή UI |
-| [`src/styles.css`](src/styles.css) | Themes (CSS variables) + στυλ preview & graph |
-| [`src/renderer.js`](src/renderer.js) | Λογική UI — file tree, editor, toolbar, preview, splitter, graph wiring |
-| [`src/graph.js`](src/graph.js) | Force-directed link graph σε canvas, χωρίς dependencies |
+| [`main.js`](main.js) | Electron main process — window, native menu, filesystem IPC, link parsing (`graph:build`) |
+| [`preload.js`](preload.js) | Safe bridge (`contextBridge`) + Markdown rendering with `marked` |
+| [`src/index.html`](src/index.html) | UI structure |
+| [`src/styles.css`](src/styles.css) | Themes (CSS variables) + preview & graph styles |
+| [`src/renderer.js`](src/renderer.js) | UI logic — file tree, editor, toolbar, preview, splitter, graph wiring |
+| [`src/graph.js`](src/graph.js) | Force-directed link graph on a canvas, no dependencies |
 
-**Ασφάλεια:** `contextIsolation: true`, `nodeIntegration: false`, strict Content-Security-Policy,
-και το preview HTML περνά πάντα από DOMPurify. Ο renderer δεν έχει πρόσβαση στο filesystem —
-όλες οι λειτουργίες αρχείων και το parsing των links γίνονται στο main process και εκτίθενται
-μέσω ενός στενού API.
+**Security:** `contextIsolation: true`, `nodeIntegration: false`, a strict
+Content-Security-Policy, and preview HTML always passes through DOMPurify. The renderer
+has no filesystem access — all file operations and link parsing happen in the main
+process and are exposed through a narrow API.
 
-Εξαρτήσεις runtime: μόνο [`marked`](https://marked.js.org/). Το [DOMPurify](https://github.com/cure53/DOMPurify)
-αντιγράφεται στο `src/vendor/` κατά το `npm install` ώστε να φορτώνεται κάτω από το CSP.
+Runtime dependencies: only [`marked`](https://marked.js.org/).
+[DOMPurify](https://github.com/cure53/DOMPurify) is copied into `src/vendor/` during
+`npm install` so it loads under the CSP.
 
-## Άδεια
+## License
 
 [MIT](LICENSE)
