@@ -1,7 +1,7 @@
 {
   "name": "markpad",
   "version": "1.0.0",
-  "description": "A minimal Markdown editor built with Electron (light/dark themes, file browser, formatting toolbar, live preview).",
+  "description": "A local-first Markdown editor built with Electron: light/dark themes, file browser, formatting toolbar, live preview, and an Obsidian-style link map.",
   "main": "main.js",
   "author": {
     "name": "bochtis.d",
