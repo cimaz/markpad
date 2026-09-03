@@ -1,0 +1,76 @@
+appId: com.markpad.editor
+productName: Markpad
+copyright: Copyright © 2026 Markpad
+
+directories:
+  output: distro
+  buildResources: build
+
+# Only what the app actually needs at runtime. Production node_modules
+# (marked) are added by electron-builder automatically.
+files:
+  - main.js
+  - preload.js
+  - src/**/*
+  - package.json
+  - "!**/*.map"
+  - "!**/*.md"
+
+fileAssociations:
+  - ext: [md, markdown, mdown, mkd]
+    name: Markdown Document
+    description: Markdown Document
+    role: Editor
+    mimeType: text/markdown
+
+# ------------------------------------------------------------------ macOS --
+mac:
+  icon: build/icon.png
+  category: public.app-category.productivity
+  darkModeSupport: true
+  # No Apple Developer certificate here, so ship unsigned rather than
+  # failing the build. Remove this line once a signing identity exists.
+  identity: null
+  target:
+    - target: dmg
+      arch: [arm64, x64]
+    - target: zip
+      arch: [arm64, x64]
+
+dmg:
+  title: ${productName} ${version}
+  artifactName: ${productName}-${version}-mac-${arch}.${ext}
+  contents:
+    - x: 140
+      y: 200
+      type: file
+    - x: 400
+      y: 200
+      type: link
+      path: /Applications
+
+# ------------------------------------------------------------------ Linux --
+linux:
+  # A directory of NxN.png files, so hicolor gets every size it wants.
+  icon: build/icons
+  category: Office;Utility;TextEditor
+  synopsis: Minimal Markdown editor
+  # Also becomes the .desktop Comment= tooltip, so keep it to one sentence.
+  description: >
+    Markdown editor with light/dark themes, a file browser, a formatting
+    toolbar and live preview.
+  maintainer: bochtis.d <powertec01@hotmail.com>
+  vendor: Markpad
+  # Flat map of Desktop Entry keys (electron-builder 25 does not nest these).
+  desktop:
+    Keywords: markdown;md;editor;text;notes;writing;
+    StartupWMClass: Markpad
+  target:
+    - target: deb
+      arch: [x64, arm64]
+
+deb:
+  artifactName: ${name}_${version}_${arch}.${ext}
+  packageCategory: editors   # Debian "Section:" field
+  priority: optional
+  compression: xz

@@ -1,0 +1,10 @@
+node_modules/
+dist/
+distro/
+.DS_Store
+*.log
+
+# Generated from build/icon.svg by `npm run icon` (the dist scripts do this
+# automatically via their pre-hooks).
+build/icon.png
+build/icons/

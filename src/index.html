@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: http:; font-src 'self';" />
+  <title>Markpad</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body data-theme="dark">
+  <div id="app">
+    <!-- ------------------------------------------------------ Sidebar -->
+    <aside id="sidebar">
+      <div class="sidebar-header">
+        <span id="folder-name" title="No folder open">NO FOLDER</span>
+        <div class="sidebar-actions">
+          <button id="btn-refresh" class="icon-btn" title="Refresh tree">&#x21bb;</button>
+          <button id="btn-open-folder" class="icon-btn" title="Open folder (Cmd/Ctrl+Shift+O)">&#x1F4C1;</button>
+        </div>
+      </div>
+      <div class="sidebar-tabs" id="sidebar-tabs">
+        <button data-tab="files" class="active" title="File browser">Files</button>
+        <button data-tab="graph" title="Link map of this folder">Graph</button>
+      </div>
+
+      <div id="file-tree-wrap">
+        <ul id="file-tree" class="tree-root"></ul>
+        <div id="tree-empty" class="tree-empty">
+          <p>No folder open.</p>
+          <button id="btn-open-folder-2" class="text-btn">Open a folder</button>
+        </div>
+      </div>
+
+      <!-- Shown instead of the tree while the graph is up -->
+      <div id="graph-legend" hidden>
+        <p class="legend-hint">
+          Every note in this folder, linked by <code>[[wikilinks]]</code> and
+          <code>[md](links.md)</code>.
+        </p>
+        <ul class="legend-list">
+          <li><span class="dot dot-active"></span> Open file</li>
+          <li><span class="dot dot-plain"></span> Note — bigger means more links</li>
+          <li><span class="dot dot-lone"></span> Orphan — nothing links to it</li>
+        </ul>
+        <p class="legend-hint">
+          Drag to pan · scroll to zoom · click to focus · <strong>double-click to open</strong>
+        </p>
+        <div id="graph-stats" class="legend-stats"></div>
+      </div>
+    </aside>
+
+    <div id="splitter" title="Drag to resize"></div>
+
+    <!-- --------------------------------------------------------- Main -->
+    <main id="main">
+      <!-- Toolbar -->
+      <div id="toolbar">
+        <div class="tb-group">
+          <button class="tb-btn" data-cmd="h1" title="Heading 1">H1</button>
+          <button class="tb-btn" data-cmd="h2" title="Heading 2">H2</button>
+          <button class="tb-btn" data-cmd="h3" title="Heading 3">H3</button>
+        </div>
+        <div class="tb-group">
+          <button class="tb-btn" data-cmd="bold" title="Bold (Cmd/Ctrl+B)"><b>B</b></button>
+          <button class="tb-btn" data-cmd="italic" title="Italic (Cmd/Ctrl+I)"><i>I</i></button>
+          <button class="tb-btn" data-cmd="strike" title="Strikethrough"><s>S</s></button>
+        </div>
+        <div class="tb-group">
+          <button class="tb-btn" data-cmd="quote" title="Blockquote">&ldquo;&rdquo;</button>
+          <button class="tb-btn" data-cmd="code" title="Inline code (Cmd/Ctrl+E)">&lt;/&gt;</button>
+          <button class="tb-btn" data-cmd="codeblock" title="Code block">{ }</button>
+        </div>
+        <div class="tb-group">
+          <button class="tb-btn" data-cmd="ul" title="Bulleted list">&bull; List</button>
+          <button class="tb-btn" data-cmd="ol" title="Numbered list">1. List</button>
+          <button class="tb-btn" data-cmd="task" title="Task list">&#9745;</button>
+        </div>
+        <div class="tb-group">
+          <button class="tb-btn" data-cmd="link" title="Link (Cmd/Ctrl+K)">&#128279;</button>
+          <button class="tb-btn" data-cmd="image" title="Image">&#128444;</button>
+          <button class="tb-btn" data-cmd="table" title="Table">&#9638;</button>
+          <button class="tb-btn" data-cmd="hr" title="Horizontal rule">&mdash;</button>
+        </div>
+
+        <div id="graph-controls">
+          <span class="graph-title">Link map</span>
+          <button id="btn-graph-refresh" class="tb-btn" title="Rescan the folder">&#x21bb; Rescan</button>
+          <button id="btn-graph-fit" class="tb-btn" title="Zoom to fit">Fit</button>
+          <button id="btn-graph-locate" class="tb-btn" title="Centre on the open file">Locate</button>
+        </div>
+
+        <div class="tb-spacer"></div>
+
+        <div class="view-toggle" id="view-toggle">
+          <button data-view="code" title="Editor only (Cmd/Ctrl+1)">Code</button>
+          <button data-view="split" title="Split (Cmd/Ctrl+2)">Split</button>
+          <button data-view="preview" title="Preview only (Cmd/Ctrl+3)">Preview</button>
+        </div>
+
+        <button id="btn-theme" class="icon-btn" title="Toggle light / dark (Cmd/Ctrl+T)">&#9789;</button>
+      </div>
+
+      <!-- Status bar -->
+      <div id="statusbar">
+        <span id="file-label">untitled.md</span>
+        <span id="dirty-dot" class="dirty-dot" hidden title="Unsaved changes">&bull;</span>
+        <div class="tb-spacer"></div>
+        <span id="cursor-info" class="muted">Ln 1, Col 1</span>
+        <span id="word-count" class="muted">0 words</span>
+        <button id="btn-save" class="text-btn" title="Save (Cmd/Ctrl+S)">Save</button>
+      </div>
+
+      <!-- Workspace -->
+      <div id="workspace" class="view-split">
+        <div id="editor-pane">
+          <textarea id="editor" spellcheck="false" wrap="soft"
+                    placeholder="# Start writing Markdown…"></textarea>
+        </div>
+        <div id="preview-pane">
+          <article id="preview" class="markdown-body"></article>
+        </div>
+        <div id="graph-pane">
+          <canvas id="graph-canvas"></canvas>
+          <div id="graph-empty" class="graph-empty" hidden></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="vendor/purify.min.js"></script>
+  <script src="graph.js"></script>
+  <script src="renderer.js"></script>
+</body>
+</html>

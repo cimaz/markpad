@@ -1,0 +1,39 @@
+{
+  "name": "markpad",
+  "version": "1.0.0",
+  "description": "A minimal Markdown editor built with Electron (light/dark themes, file browser, formatting toolbar, live preview).",
+  "main": "main.js",
+  "author": {
+    "name": "bochtis.d",
+    "email": "powertec01@hotmail.com"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/cimaz/markpad",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cimaz/markpad.git"
+  },
+  "bugs": {
+    "url": "https://github.com/cimaz/markpad/issues"
+  },
+  "scripts": {
+    "start": "electron .",
+    "postinstall": "node scripts/vendor.js",
+    "icon": "electron scripts/make-icon.js",
+    "predist": "npm run icon",
+    "dist": "electron-builder --mac --linux",
+    "predist:mac": "npm run icon",
+    "dist:mac": "electron-builder --mac",
+    "predist:linux": "npm run icon",
+    "dist:linux": "electron-builder --linux",
+    "pack": "electron-builder --dir"
+  },
+  "dependencies": {
+    "marked": "^4.3.0"
+  },
+  "devDependencies": {
+    "dompurify": "^3.1.7",
+    "electron": "^33.0.0",
+    "electron-builder": "^25.1.8"
+  }
+}
