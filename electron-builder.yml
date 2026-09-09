@@ -6,6 +6,9 @@ directories:
   output: distro
   buildResources: build
 
+# Ad-hoc signs the macOS .app (see the script for why).
+afterPack: scripts/after-pack.js
+
 # Only what the app actually needs at runtime. Production node_modules
 # (marked) are added by electron-builder automatically.
 files:
@@ -28,24 +31,37 @@ mac:
   icon: build/icon.png
   category: public.app-category.productivity
   darkModeSupport: true
-  # No Apple Developer certificate here, so ship unsigned rather than
-  # failing the build. Remove this line once a signing identity exists.
+  minimumSystemVersion: "11.0"        # Electron 33 = macOS Big Sur and up
+
+  # There is no paid Apple Developer account, so electron-builder cannot sign
+  # with a Developer ID or notarize. It is told to do nothing here; instead
+  # scripts/after-pack.js ad-hoc signs the whole .app, which is enough for it
+  # to launch on Apple Silicon and not read as "damaged". Gatekeeper still
+  # quarantines the download — users clear that once (right-click > Open, the
+  # Homebrew cask with --no-quarantine, or `xattr -dr com.apple.quarantine`).
+  # To sign properly later: set `identity` to your "Developer ID Application"
+  # name, `hardenedRuntime: true`, add an entitlements plist and `notarize`.
   identity: null
+  gatekeeperAssess: false            # don't run spctl during the build
+
   target:
     - target: dmg
       arch: [arm64, x64]
-    - target: zip
+    - target: zip                    # for Homebrew cask / manual unzip
       arch: [arm64, x64]
 
 dmg:
   title: ${productName} ${version}
   artifactName: ${productName}-${version}-mac-${arch}.${ext}
+  window:
+    width: 540
+    height: 380
   contents:
-    - x: 140
-      y: 200
+    - x: 150
+      y: 190
       type: file
-    - x: 400
-      y: 200
+    - x: 390
+      y: 190
       type: link
       path: /Applications
 

@@ -26,7 +26,8 @@
     "dist:mac": "electron-builder --mac",
     "predist:linux": "npm run icon",
     "dist:linux": "electron-builder --linux",
-    "pack": "electron-builder --dir"
+    "pack": "electron-builder --dir",
+    "cask:sha": "node scripts/cask-sha.js"
   },
   "dependencies": {
     "marked": "^4.3.0"

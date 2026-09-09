@@ -116,7 +116,7 @@ Packages are written to `distro/`. The icon is generated automatically from
 [`build/icon.svg`](build/icon.svg) — rendered by Electron itself, so no ImageMagick or
 sharp is needed. Configuration: [`electron-builder.yml`](electron-builder.yml).
 
-### Installing the `.deb`
+### Installing on Linux (`.deb`)
 
 ```bash
 sudo apt install ./distro/markpad_1.0.0_amd64.deb
@@ -124,10 +124,38 @@ sudo apt install ./distro/markpad_1.0.0_amd64.deb
 
 Installs to `/opt/Markpad` with a desktop entry, hicolor icons and a `.md` file association.
 
-### Note for macOS
+### Installing on macOS
 
-The builds are **unsigned** (no Apple Developer certificate). On first launch: right-click
-the app → **Open** → **Open**, or run `xattr -cr /Applications/Markpad.app`.
+There is **no paid Apple Developer account**, so the app is **ad-hoc signed but not
+notarized**. It runs fine on both Apple Silicon and Intel, but macOS Gatekeeper
+quarantines anything downloaded from an unidentified developer, so you clear that flag
+**once**. Pick whichever you prefer:
+
+**Homebrew (recommended)** — the `--no-quarantine` flag skips the Gatekeeper prompt entirely:
+
+```bash
+brew tap cimaz/markpad https://github.com/cimaz/markpad
+brew install --cask --no-quarantine markpad
+```
+
+**Manual** — open the `.dmg`, drag Markpad to Applications, then either:
+
+- right-click Markpad in Applications → **Open** → **Open** (only needed the first time), or
+- ```bash
+  xattr -dr com.apple.quarantine /Applications/Markpad.app
+  ```
+
+Building a properly signed + notarized app would require the $99/year Apple Developer
+Program; the `mac:` block in [`electron-builder.yml`](electron-builder.yml) has notes on
+what to change if that ever happens.
+
+#### Publishing a macOS release
+
+```bash
+npm run dist:mac                       # builds the dmgs + zips
+npm run cask:sha                       # writes version + SHA-256 into Casks/markpad.rb
+# create a GitHub release tagged v<version>, upload the 2 dmgs, commit the cask
+```
 
 ## Keyboard shortcuts
 
