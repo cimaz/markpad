@@ -77,6 +77,14 @@ linux:
     toolbar and live preview.
   maintainer: bochtis.d <powertec01@hotmail.com>
   vendor: Markpad
+  # The AppImage builder rejects an `ext` list, so Linux gets one entry per
+  # extension (the deb is fine with either form). The MIME type goes on one
+  # entry only, so the .desktop MimeType= line does not repeat it per entry.
+  fileAssociations:
+    - { ext: md, name: Markdown Document, mimeType: text/markdown, role: Editor }
+    - { ext: markdown, name: Markdown Document, role: Editor }
+    - { ext: mdown, name: Markdown Document, role: Editor }
+    - { ext: mkd, name: Markdown Document, role: Editor }
   # Flat map of Desktop Entry keys (electron-builder 25 does not nest these).
   desktop:
     Keywords: markdown;md;editor;text;notes;writing;
@@ -84,6 +92,11 @@ linux:
   target:
     - target: deb
       arch: [x64, arm64]
+    - target: AppImage
+      arch: [x64, arm64]
+
+appImage:
+  artifactName: ${productName}-${version}-${arch}.${ext}
 
 deb:
   artifactName: ${name}_${version}_${arch}.${ext}

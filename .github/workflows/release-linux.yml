@@ -1,0 +1,68 @@
+# Builds the Linux packages (.deb + AppImage, x64 + arm64) and attaches them
+# to a GitHub release.
+#
+# Release a new version:
+#   npm version 1.1.0          # bumps package.json and creates the v1.1.0 tag
+#   git push --follow-tags
+#
+# Running it by hand (Actions tab > Run workflow) builds the packages and
+# uploads them as a workflow artifact, without creating a release.
+
+name: Release (Linux)
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write   # create the release and upload its assets
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Check the tag matches package.json
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          pkg="v$(node -p "require('./package.json').version")"
+          if [ "$pkg" != "$GITHUB_REF_NAME" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match package.json version ($pkg)"
+            exit 1
+          fi
+
+      - run: npm ci
+
+      # Ubuntu 24.04 blocks the unprivileged user namespaces Chromium's sandbox
+      # needs, and `npm run icon` launches Electron to render the app icon.
+      - name: Allow the Electron sandbox
+        run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+
+      # Electron needs a display even offscreen, hence xvfb-run. Publishing is
+      # left to the release step below, not electron-builder.
+      - name: Build .deb and AppImage
+        run: xvfb-run -a npm run dist:linux -- --publish never
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: markpad-linux
+          path: |
+            distro/*.deb
+            distro/*.AppImage
+          if-no-files-found: error
+
+      - name: Publish the release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: |
+            distro/*.deb
+            distro/*.AppImage

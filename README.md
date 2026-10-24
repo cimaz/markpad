@@ -30,9 +30,12 @@ Every Markdown element has a button, so you never have to remember the syntax:
 | Lists | Bulleted · numbered · task list (`- [ ]`) |
 | Inserts | Link · image · table · horizontal rule |
 
-Buttons act on the **current selection** and work as a toggle — select text that is
-already bold and the button un-bolds it. `Tab` inserts two spaces instead of moving
-focus away.
+Buttons act on the **current selection**. Inline styles (bold, italic, strikethrough,
+inline code) and line prefixes (headings, blockquote, lists, task list) work as a
+toggle — select text that is already bold and the button un-bolds it; apply a list to
+several selected lines and each line gets the prefix. Code block, link, image, table and
+horizontal rule insert a snippet, with the placeholder URL pre-selected so you can type
+over it. `Tab` inserts two spaces instead of moving focus away.
 
 ### 👁️ Three views
 
@@ -46,8 +49,13 @@ It updates as you type.
 ### 📁 File browser
 
 A tree view of the folder on the left — nested sub-folders that expand on click, lazy
-loading, the open file highlighted. Markdown files are visually distinct from the rest.
-Hidden files (`.dotfiles`) are skipped.
+loading, the open file highlighted. Folders come first, then files in natural order
+(`note2` before `note10`). Markdown files (`.md`, `.markdown`, `.mdown`, `.mkd`) are
+visually distinct from plain text (`.txt`, `.text`) and everything else. Hidden files
+(`.dotfiles`) are skipped. Drag the divider to resize the sidebar.
+
+Opening a single file (`Cmd/Ctrl+O`, the command line or a file association) while no
+folder is open also opens the file's parent folder.
 
 ### 🕸️ Link map
 
@@ -61,9 +69,19 @@ with edges for the links between them. It recognises:
 | **Wikilinks** | `[[Note]]` · `[[Note\|alias]]` · `[[Note#heading]]` · `[[folder/Note]]` |
 | **Markdown links** | `[text](note.md)` · `[text](../folder/note.md)` · percent-encoded names |
 
-It correctly ignores external URLs, `mailto:`, images, bare anchors (`#section`), and
-anything inside inline or fenced code. Duplicate links to the same target count once.
-Folders like `node_modules`, `.git` and `dist` are skipped.
+It correctly ignores external URLs, `mailto:`, images and other non-Markdown files,
+bare anchors (`#section`), and anything inside inline or fenced code. Duplicate links
+to the same target count once, and self-links are dropped.
+
+Links are resolved case-insensitively, first relative to the linking file, then
+relative to the folder root. A bare wikilink like `[[Note]]` matches a note of that
+name anywhere in the folder (the first match wins if several share a name). A link
+that looks like a note but matches no file counts as a **broken link**.
+
+Hidden folders and `node_modules`, `dist`, `distro`, `out`, `build`, `vendor` and
+`target` are skipped, as are symlinks. To stay responsive on large folders the scan
+stops at 4,000 notes (the sidebar says when it was truncated), and files over 1 MB are
+mapped as nodes but not parsed for links.
 
 **Controls:** drag to pan (or drag a node to rearrange) · scroll to zoom · click to
 focus a node and its neighbours · **double-click to open** the file. In the toolbar:
@@ -84,11 +102,15 @@ applies to the graph too.
 
 ### Smaller things
 
-- **Session restore** — reopens the last folder, file, theme and view.
+- **Session restore** — reopens the last folder, file, theme, view, sidebar tab
+  (Files / Graph) and sidebar width.
 - **File associations** — double-clicking a `.md` file in Finder / your file manager
-  opens Markpad (after installing a package).
-- **Status bar** — file name, unsaved-changes indicator, cursor position, word count.
-- A prompt before you close a file with unsaved changes.
+  opens Markpad (after installing a package). Only one instance runs: opening another
+  file while Markpad is up sends it to the existing window.
+- **Status bar** — file name, unsaved-changes indicator, cursor position, word count,
+  and a Save button.
+- A confirmation before opening another file or starting a new one would discard
+  unsaved changes.
 
 ## Running from source
 
@@ -108,21 +130,49 @@ Open a specific file: `npm start -- path/to/file.md`
 ```bash
 npm run dist          # macOS + Linux
 npm run dist:mac      # macOS  — .dmg + .zip (arm64 & x64)
-npm run dist:linux    # Linux  — .deb (amd64 & arm64)
+npm run dist:linux    # Linux  — .deb + AppImage (x64 & arm64)
 npm run pack          # unpacked build, no installer (quick check)
 ```
 
-Packages are written to `distro/`. The icon is generated automatically from
+Packages are written to `distro/`. The macOS targets have to be built on a Mac (the
+post-pack step signs the app with `codesign`), so on Linux use `npm run dist:linux`
+rather than `npm run dist`. The icon is generated automatically from
 [`build/icon.svg`](build/icon.svg) — rendered by Electron itself, so no ImageMagick or
 sharp is needed. Configuration: [`electron-builder.yml`](electron-builder.yml).
 
-### Installing on Linux (`.deb`)
+### Linux releases (GitHub Actions)
+
+Pushing a version tag builds the Linux packages on GitHub and attaches them to a new
+release ([`.github/workflows/release-linux.yml`](.github/workflows/release-linux.yml)):
 
 ```bash
-sudo apt install ./distro/markpad_1.0.0_amd64.deb
+npm version 1.1.0          # bumps package.json and tags v1.1.0
+git push --follow-tags
+```
+
+The workflow fails if the tag doesn't match the version in `package.json`. It can also
+be started by hand from the **Actions** tab; that builds the packages as a downloadable
+workflow artifact without creating a release.
+
+### Installing on Linux
+
+**`.deb`** (Debian, Ubuntu, Mint…):
+
+```bash
+sudo apt install ./markpad_1.0.0_amd64.deb
 ```
 
 Installs to `/opt/Markpad` with a desktop entry, hicolor icons and a `.md` file association.
+
+**AppImage** (any distribution) — no install needed:
+
+```bash
+chmod +x Markpad-1.0.0-x86_64.AppImage
+./Markpad-1.0.0-x86_64.AppImage
+```
+
+AppImages need FUSE 2; on Ubuntu 22.04+ that's `sudo apt install libfuse2`
+(`libfuse2t64` on 24.04).
 
 ### Installing on macOS
 
@@ -130,6 +180,10 @@ There is **no paid Apple Developer account**, so the app is **ad-hoc signed but 
 notarized**. It runs fine on both Apple Silicon and Intel, but macOS Gatekeeper
 quarantines anything downloaded from an unidentified developer, so you clear that flag
 **once**. Pick whichever you prefer:
+
+> **Note:** no GitHub release has been published yet, and the cask in
+> [`Casks/markpad.rb`](Casks/markpad.rb) still has placeholder checksums. Until the first
+> release is out, build the `.dmg` yourself with `npm run dist:mac`.
 
 **Homebrew (recommended)** — the `--no-quarantine` flag skips the Gatekeeper prompt entirely:
 
@@ -170,6 +224,8 @@ npm run cask:sha                       # writes version + SHA-256 into Casks/mar
 | `Cmd/Ctrl` + `1` / `2` / `3` | Code / Split / Preview |
 | `Cmd/Ctrl` + `T` | Toggle light / dark |
 | `Cmd/Ctrl` + `\` | Show / hide sidebar |
+| `Cmd/Ctrl` + `0` / `+` / `-` | Reset / increase / decrease zoom |
+| `Tab` | Insert two spaces |
 
 ## How it's built
 
@@ -181,15 +237,32 @@ npm run cask:sha                       # writes version + SHA-256 into Casks/mar
 | [`src/styles.css`](src/styles.css) | Themes (CSS variables) + preview & graph styles |
 | [`src/renderer.js`](src/renderer.js) | UI logic — file tree, editor, toolbar, preview, splitter, graph wiring |
 | [`src/graph.js`](src/graph.js) | Force-directed link graph on a canvas, no dependencies |
+| [`scripts/vendor.js`](scripts/vendor.js) | `postinstall` — copies DOMPurify into `src/vendor/` |
+| [`scripts/make-icon.js`](scripts/make-icon.js) | `npm run icon` — renders `build/icon.svg` to PNGs with Electron |
+| [`scripts/after-pack.js`](scripts/after-pack.js) | electron-builder hook — ad-hoc signs the macOS app |
+| [`scripts/cask-sha.js`](scripts/cask-sha.js) | `npm run cask:sha` — writes version + DMG checksums into the cask |
+| [`Casks/markpad.rb`](Casks/markpad.rb) | Homebrew cask (the repo doubles as its own tap) |
 
 **Security:** `contextIsolation: true`, `nodeIntegration: false`, a strict
 Content-Security-Policy, and preview HTML always passes through DOMPurify. The renderer
-has no filesystem access — all file operations and link parsing happen in the main
-process and are exposed through a narrow API.
+has no direct filesystem or Node access — file operations and link parsing run in the
+main process and are reached only through the small API that `preload.js` exposes
+(open/save dialogs, read a directory, read/write a file, build the graph).
 
 Runtime dependencies: only [`marked`](https://marked.js.org/).
 [DOMPurify](https://github.com/cure53/DOMPurify) is copied into `src/vendor/` during
 `npm install` so it loads under the CSP.
+
+## Known limitations
+
+- **Images with relative paths don't show in the preview.** They resolve against the
+  app's own folder rather than the note's, so `![](img/pic.png)` appears broken. Images
+  from `http(s)://` URLs and `data:` URIs work.
+- **Clicking a link in the preview** loads it inside the app window instead of your
+  browser.
+- **Closing the window with unsaved changes** is blocked silently, with no prompt. Save
+  (or undo the changes) first.
+- Files are read and written as UTF-8.
 
 ## License
 
